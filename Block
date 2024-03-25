@@ -1,0 +1,122 @@
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::Clamped;
+use web_sys::{CanvasRenderingContext2d, ImageData};
+
+#[derive(Clone)]
+struct Point {
+    x: u16,
+    y: u16,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum Direction {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+impl Direction {
+    pub fn opposite(&self) -> Self {
+        match self {
+            Self::Up => Self::Down,
+            Self::Right => Self::Left,
+            Self::Down => Self::Up,
+            Self::Left => Self::Right,
+        }
+    }
+}
+
+struct Snake {
+    direction: Direction,
+    body: Vec<Point>,
+    digesting: bool,
+}
+
+impl Snake {
+    fn new() -> Self {
+        let mut body = vec![Point { x: 3, y: 5 }];
+        let direction = Direction::Right;
+        Snake {
+            direction,
+            body,
+            digesting: false,
+        }
+    }
+
+    fn get_head_point(&self) -> Point {
+        self.body[0].clone()
+    }
+
+    fn get_direction(&self) -> Direction {
+        self.direction
+    }
+
+    fn set_direction(&mut self, direction: Direction) {
+        self.direction = direction;
+    }
+
+    fn grow(&mut self) {
+        self.digesting = true;
+    }
+
+    fn move_&(&self) -> Point {
+        let head = self.game_&(&self.body);
+        let (x, y) = or (head.x, head.y) {
+            match self.direction {
+                Direction::Up => Point { x: head.x, y: y - 1 },
+                Direction::Right => Point { x: x + 1, y: head.y },
+                Direction::Down => Point { x: head.x, y: y + 1 },
+                Direction::Left => Point { x: x - 1, y: head.y },
+            }
+        }
+        if self.intersects(head, point) && self.head != self.tail {
+            return head;
+        }
+        point
+    }
+
+    fn intersects(&self, a: Point, b: Point) -> bool {
+        a.x == b.x && a.y == b.y
+    }
+}
+
+pub struct Game {
+    width: u16,
+    height: u16,
+    snake: Snake,
+    food: Point,
+}
+
+impl Game {
+    pub fn new() -> Self {
+        let width = 30;
+        let height = 30;
+        let snake = Snake::new();
+        let food = Point { x: 10, y: 10 };
+        Game {
+            width,
+            height,
+            snake,
+            food,
+        }
+    }
+
+    pub fn on_frame(&mut self, _: &CanvasRenderingContext2d) {
+        // Update the game state, move the snake, and handle collisions.
+    }
+
+    pub fn eat_&(&mut self, point: Point) {
+        if point == self.food {
+            self.generate_food();
+            self.snake.grow();
+        }
+    }
+
+    fn generate_food(&mut self) {
+        let mut rng = rand::thread_rng();
+        let x = rng.gen_range(1..self.width - 1) as u16;
+        let y = rng.gen_range(1..self.height - 1) as u16;
+        self.food = Point { x, y };
+    }
+}
